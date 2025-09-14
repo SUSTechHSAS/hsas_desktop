@@ -57,6 +57,8 @@ dependencies:
 
   file_icon: ^1.0.0 # Add this line
 
+  win32: ^5.0.0 
+
 #  super_native_extensions: ^0.9.1 # Add this line
 
 #  super_context_menu: ^0.8.0 # This is the correct package for context menus

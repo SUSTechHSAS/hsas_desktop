@@ -177,7 +177,20 @@ class _FolderPortalWidgetState extends State<FolderPortalWidget> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          FileIcon(file.path.split(Platform.pathSeparator).last, size: 40),
+                          FutureBuilder<ImageProvider?>(
+                            // 调用 AppProvider 的方法，isSmall: true 表示获取小图标
+                            future: appProvider.getIconProvider(file.path, isSmall: true),
+                            builder: (context, snapshot) {
+                              // ... (这里的逻辑与 IconWidget 中的类似)
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const SizedBox(width: 40, height: 40, child: Center(child: CircularProgressIndicator(strokeWidth: 1.5)));
+                              }
+                              if (snapshot.hasData && snapshot.data != null) {
+                                return Image(image: snapshot.data!, width: 40, height: 40, fit: BoxFit.contain);
+                              }
+                              return Icon(isFolder ? Icons.folder : Icons.insert_drive_file, size: 40, color: Colors.white);
+                            },
+                          ),
                           const SizedBox(height: 4),
                           Text(
                             file.path.split(Platform.pathSeparator).last,

@@ -11,11 +11,15 @@ import 'package:hsas_desktop/data/models/timer_model.dart';
 import 'package:hsas_desktop/data/services/persistence_service.dart';
 import 'package:hsas_desktop/data/services/timer_service.dart';
 import 'package:uuid/uuid.dart';
+import 'package:hsas_desktop/data/services/icon_service.dart'; // 导入我们新的服务
 
 class AppProvider extends ChangeNotifier {
   final PersistenceService _persistenceService = PersistenceService();
   final TimerService _timerService = TimerService();
   final Uuid _uuid = const Uuid();
+
+  final IconService _iconService = IconService(); // 使用新的服务
+  final Map<String, ImageProvider> _iconCache = {};
 
   List<DesktopModel> _desktops = [];
   int _activeDesktopIndex = 0;
@@ -78,6 +82,24 @@ class AppProvider extends ChangeNotifier {
   }
 
   // --- Icon and Portal Management ---
+  Future<ImageProvider?> getIconProvider(String path, {bool isSmall = false}) async {
+    final cacheKey = '$path-${isSmall ? 'small' : 'large'}';
+    if (_iconCache.containsKey(cacheKey)) {
+      return _iconCache[cacheKey];
+    }
+
+    try {
+      final provider = await _iconService.getFileIcon(path, isSmall: isSmall);
+      if (provider != null) {
+        _iconCache[cacheKey] = provider;
+        return provider;
+      }
+    } catch (e) {
+      print("无法获取图标 '$path': $e");
+    }
+    return null;
+  }
+
   void addIconToCurrentDesktop(String path, String name, IconType type, Offset position) {
     final newIcon = IconModel(
       id: _uuid.v4(),

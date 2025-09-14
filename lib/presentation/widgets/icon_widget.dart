@@ -4,6 +4,7 @@ import 'package:hsas_desktop/data/models/desktop_model.dart';
 import 'package:hsas_desktop/data/models/icon_model.dart';
 import 'package:hsas_desktop/data/services/system_service.dart';
 import 'package:hsas_desktop/utils/app_constants.dart';
+import 'package:hsas_desktop/presentation/providers/app_provider.dart';
 
 class IconWidget extends StatelessWidget {
   final IconModel iconData;
@@ -36,9 +37,34 @@ class IconWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Use the FileIcon widget to get an icon based on the file name/extension
-            FileIcon(
-              iconData.name, // The package uses the name to determine the icon
-              size: scaledIconSize,
+            FutureBuilder<ImageProvider?>(
+              // future 指向我们刚刚在 AppProvider 中创建的方法
+              future: appProvider.getIconProvider(iconData.path, isSmall: false),
+              builder: (context, snapshot) {
+                // 状态 1: 正在加载中
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return SizedBox(
+                    width: scaledIconSize,
+                    height: scaledIconSize,
+                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2.0)),
+                  );
+                }
+                // 状态 2: 加载完成且成功获取到图标
+                if (snapshot.hasData && snapshot.data != null) {
+                  return Image(
+                    image: snapshot.data!,
+                    width: scaledIconSize,
+                    height: scaledIconSize,
+                    fit: BoxFit.contain,
+                  );
+                }
+                // 状态 3: 加载失败或未获取到图标，显示一个备用图标
+                return Icon(
+                  iconData.type == IconType.folder ? Icons.folder : Icons.insert_drive_file,
+                  size: scaledIconSize,
+                  color: Colors.white,
+                );
+              },
             ),
             const SizedBox(height: 4),
             Text(

@@ -17,7 +17,8 @@ class DesktopPage extends StatelessWidget {
 
   void _showContextMenu(BuildContext context, TapDownDetails details) {
     final appProvider = Provider.of<AppProvider>(context, listen: false);
-    final position = details.localPosition;
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final position = overlay.globalToLocal(globalPosition);
 
     showMenu<String>(
       context: context,
@@ -71,7 +72,9 @@ class DesktopPage extends StatelessWidget {
     final iconSizeScale = appProvider.appSettings.iconSizeScale;
 
     return GestureDetector(
-      onSecondaryTapDown: (details) => _showContextMenu(context, details),
+      onSecondaryTapDown: (details) => _showContextMenu(context, details.globalPosition),
+      // 修复 #2: 触摸屏长按
+      onLongPressStart: (details) => _showContextMenu(context, details.globalPosition),
       // 关键修复 #4: DragTarget 现在是父级，负责接收所有可拖动对象
       child: DragTarget<Object>(
         onAcceptWithDetails: (details) {

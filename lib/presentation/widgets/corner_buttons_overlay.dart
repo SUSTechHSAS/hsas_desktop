@@ -79,7 +79,7 @@ class CornerButtonsOverlay extends StatelessWidget {
             child: IconButton(
               icon: const Icon(Icons.minimize, color: Colors.white),
               iconSize: AppConstants.cornerButtonSize,
-              onPressed: _systemService.minimizeWindow,
+              onPressed: _systemService.toggleMinimize,
               tooltip: '最小化',
             ),
           ),

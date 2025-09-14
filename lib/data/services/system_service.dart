@@ -25,6 +25,18 @@ class SystemService {
     await windowManager.minimize();
   }
 
+  Future<void> toggleMinimize() async {
+    bool isMinimized = await windowManager.isMinimized();
+    if (isMinimized) {
+      // 如果已最小化，则恢复
+      await windowManager.restore();
+      await windowManager.focus();
+    } else {
+      // 如果未最小化，则最小化
+      await windowManager.minimize();
+    }
+  }
+
   // 关机 (危险操作)
   Future<void> shutdown(BuildContext context) async {
     bool confirm = await showDialog(
